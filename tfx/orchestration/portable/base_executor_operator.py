@@ -30,32 +30,30 @@ from ml_metadata.proto import metadata_store_pb2
 # TODO(b/150979622): We should introduce an id that is not changed across
 # retires of the same component run and pass it to executor operators for
 # human-readability purpose.
-# TODO(b/165359991): Restore 'auto_attribs=True' once we drop Python3.5 support.
-# LINT.IfChange
-@attr.s
+@attr.s(auto_attribs=True)
 class ExecutionInfo:
   """A struct to store information for an execution."""
   # The metadata of this execution that is registered in MLMD.
-  execution_metadata = attr.ib(type=metadata_store_pb2.Execution, default=None)
+  execution_metadata: metadata_store_pb2.Execution = None
   # The input map to feed to executor
-  input_dict = attr.ib(type=Dict[str, List[types.Artifact]], default=None)
+  input_dict: Dict[str, List[types.Artifact]] = None
   # The output map to feed to executor
-  output_dict = attr.ib(type=Dict[str, List[types.Artifact]], default=None)
+  output_dict: Dict[str, List[types.Artifact]] = None
   # The exec_properties to feed to executor
-  exec_properties = attr.ib(type=Dict[str, Any], default=None)
+  exec_properties: Dict[str, Any] = None
   # The uri to executor result, note that Executors and Launchers may not run
   # in the same process, so executors should use this uri to "return"
   # ExecutorOutput to the launcher.
-  executor_output_uri = attr.ib(type=str, default=None)
+  executor_output_uri: str = None
   # Stateful working dir will be deterministic given pipeline, node and run_id.
-  # The typical usecase is to restore long running executor's state after
+  # The typical use case is to restore long running executor's state after
   # eviction. For examples, a Trainer can use this directory to store
   # checkpoints.
-  stateful_working_dir = attr.ib(type=str, default=None)
+  stateful_working_dir: str = None
   # The config of this Node.
-  pipeline_node = attr.ib(type=pipeline_pb2.PipelineNode, default=None)
+  pipeline_node: pipeline_pb2.PipelineNode = None
   # The config of the pipeline that this node is running in.
-  pipeline_info = attr.ib(type=pipeline_pb2.PipelineInfo, default=None)
+  pipeline_info: pipeline_pb2.PipelineInfo = None
 
 
 # LINT.ThenChange(../../proto/orchestration/executor_invocation.proto)

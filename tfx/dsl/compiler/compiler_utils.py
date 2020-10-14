@@ -25,6 +25,7 @@ from tfx import types
 from tfx.components.common_nodes import resolver_node
 from tfx.dsl.components.base import base_component
 from tfx.dsl.components.base import base_node
+from tfx.proto.orchestration import local_deployment_config_pb2
 from tfx.proto.orchestration import pipeline_pb2
 
 
@@ -82,3 +83,16 @@ def ensure_topological_order(nodes: List[base_node.BaseNode]) -> bool:
         return False
     visited.add(node)
   return True
+
+
+def encode_beam_pipeline_args(
+    node: base_node.BaseNode,
+    deployment_config: pipeline_pb2.IntermediateDeploymentConfig,
+    beam_pipeline_args: Optional[List[str]]) -> None:
+  if not beam_pipeline_args:
+    return
+
+  local_platform_config = local_deployment_config_pb2.LocalPlatformConfig()
+  local_platform_config.beam_pipeline_args.extend(beam_pipeline_args)
+  deployment_config.node_level_platform_configs[node.id].Pack(
+      local_platform_config)

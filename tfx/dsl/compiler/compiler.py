@@ -228,6 +228,11 @@ class Compiler(object):
           tfx_pipeline.metadata_connection_config)
     for node in tfx_pipeline.components:
       node_pb = self._compile_node(node, context, deployment_config)
+      # TODO(b/170887998): Currently `beam_pipeline_args` is set at pipeline
+      # level in the SDK. However it is subject to change, to move to per-node
+      # configuration. We will need to change the following logic accordingly.
+      compiler_utils.encode_beam_pipeline_args(node, deployment_config,
+                                               tfx_pipeline.beam_pipeline_args)
       pipeline_or_node = pipeline_pb.PipelineOrNode()
       pipeline_or_node.pipeline_node.CopyFrom(node_pb)
       # TODO(b/158713812): Support sub-pipeline.

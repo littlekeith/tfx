@@ -1293,5 +1293,69 @@ deployment_config {
         }
       }
     }
+    node_level_platform_configs {
+      key: "CsvExampleGen"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "Evaluator"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "ExampleValidator"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "Pusher"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "ResolverNode.latest_blessed_model_resolver"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "SchemaGen"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "StatisticsGen"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
+    node_level_platform_configs {
+      key: "Trainer"
+      value {
+        [type.googleapis.com/tfx.orchestration.deployment_config.LocalPlatformConfig] {
+          beam_pipeline_args: "--direct_running_mode=multi_processing"
+        }
+      }
+    }
   }
 }

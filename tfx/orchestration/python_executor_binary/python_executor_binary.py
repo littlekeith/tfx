@@ -35,6 +35,7 @@ import tensorflow as tf
 from tfx.orchestration.portable import python_executor_operator
 from tfx.orchestration.python_executor_binary import python_executor_binary_utils
 from tfx.proto.orchestration import executable_spec_pb2
+from tfx.proto.orchestration import local_deployment_config_pb2
 from google.protobuf import text_format
 
 FLAGS = flags.FLAGS
@@ -45,6 +46,9 @@ flags.DEFINE_string(
 flags.DEFINE_string(
     'tfx_python_class_executor_spec_b64', None,
     'tfx.orchestration.executable_spec.PythonClassExecutableSpec proto')
+flags.DEFINE_string(
+    'tfx_local_platform_config_b64', None,
+    'tfx.orchestration.deployment_config.LocalPlatformConfig proto')
 
 
 def main(_):
@@ -56,6 +60,9 @@ def main(_):
       FLAGS.tfx_execution_info_b64)
   python_class_executor_spec = executable_spec_pb2.PythonClassExecutableSpec.FromString(
       base64.b64decode(FLAGS.tfx_python_class_executor_spec_b64))
+  local_platform_config = local_deployment_config_pb2.LocalPlatformConfig.FromString(
+      base64.b64decode(FLAGS.tfx_local_platform_config_b64)
+  ) if FLAGS.tfx_local_platform_config_b64 else None
 
   logging.info('execution_info = %s\n',
                text_format.MessageToString(execution_info))
@@ -63,7 +70,7 @@ def main(_):
                text_format.MessageToString(python_class_executor_spec))
 
   operator = python_executor_operator.PythonExecutorOperator(
-      python_class_executor_spec)
+      python_class_executor_spec, local_platform_config)
   run_result = operator.run_executor(execution_info)
 
   if run_result:

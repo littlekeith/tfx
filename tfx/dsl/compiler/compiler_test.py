@@ -140,7 +140,7 @@ class CompilerTest(tf.test.TestCase):
             pusher,
         ],
         enable_cache=True,
-        beam_pipeline_args=[])
+        beam_pipeline_args=["--direct_running_mode=multi_processing"])
 
   def _set_up_test_pipeline_pb(self):
     """Read expected pipeline pb from a text proto file."""

@@ -20,9 +20,15 @@ import "tfx/proto/orchestration/executable_spec.proto";
 
 message ExecutableSpec {
   oneof spec {
-    tfx.orchestration.executable_spec.PythonClassExecutableSpec python_class_executable_spec = 1;
+    tfx.orchestration.executable_spec.PythonClassExecutableSpec
+        python_class_executable_spec = 1;
   }
 }
+
+message LocalPlatformConfig {
+  repeated string beam_pipeline_args = 1;
+}
+
 // Definition for local deployment configs.
 message LocalDeploymentConfig {
   // A key from `node_id` to executor specs. Note that this will cover all nodes

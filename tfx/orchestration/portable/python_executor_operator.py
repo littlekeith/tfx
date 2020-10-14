@@ -22,6 +22,7 @@ from tfx.dsl.components.base import base_executor
 from tfx.orchestration.portable import base_executor_operator
 from tfx.proto.orchestration import executable_spec_pb2
 from tfx.proto.orchestration import execution_result_pb2
+from tfx.proto.orchestration import local_deployment_config_pb2
 from tfx.proto.orchestration import pipeline_pb2
 from tfx.utils import import_utils
 
@@ -66,7 +67,9 @@ class PythonExecutorOperator(base_executor_operator.BaseExecutorOperator):
   """PythonExecutorOperator handles python class based executor's init and execution."""
 
   SUPPORTED_EXECUTOR_SPEC_TYPE = [executable_spec_pb2.PythonClassExecutableSpec]
-  SUPPORTED_PLATFORM_CONFIG_TYPE = []
+  SUPPORTED_PLATFORM_CONFIG_TYPE = [
+      local_deployment_config_pb2.LocalPlatformConfig
+  ]
 
   def __init__(self,
                executor_spec: message.Message,
@@ -78,9 +81,7 @@ class PythonExecutorOperator(base_executor_operator.BaseExecutorOperator):
       platform_config: The specification of how to allocate resource for the
         executor.
     """
-    # Python executors run locally, so platform_config is not used.
-    del platform_config
-    super(PythonExecutorOperator, self).__init__(executor_spec)
+    super(PythonExecutorOperator, self).__init__(executor_spec, platform_config)
     python_class_executor_spec = cast(
         pipeline_pb2.ExecutorSpec.PythonClassExecutorSpec, self._executor_spec)
     self._executor_cls = import_utils.import_class_by_path(
@@ -97,8 +98,11 @@ class PythonExecutorOperator(base_executor_operator.BaseExecutorOperator):
     Returns:
       The output from executor.
     """
-    # TODO(b/162980675): Set arguments for Beam when it is available.
+    beam_pipeline_args = cast(
+        local_deployment_config_pb2.LocalPlatformConfig, self._platform_config
+    ).beam_pipeline_args if self._platform_config else None
     context = base_executor.BaseExecutor.Context(
+        beam_pipeline_args=beam_pipeline_args,
         executor_output_uri=execution_info.executor_output_uri,
         stateful_working_dir=execution_info.stateful_working_dir)
     executor = self._executor_cls(context=context)
@@ -110,8 +114,7 @@ class PythonExecutorOperator(base_executor_operator.BaseExecutorOperator):
       # read if from the executor_output_uri.
       try:
         with tf.io.gfile.GFile(execution_info.executor_output_uri, 'rb') as f:
-          result = execution_result_pb2.ExecutorOutput.FromString(
-              f.read())
+          result = execution_result_pb2.ExecutorOutput.FromString(f.read())
       except tf.errors.NotFoundError:
         # Old style TFX executor doesn't return executor_output, but modify
         # output_dict and exec_properties in place. For backward compatibility,
