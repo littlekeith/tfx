@@ -25,6 +25,8 @@ from tfx.proto.orchestration import pipeline_pb2
 _EXECUTION_PREFIX = 'execution_'
 _STATEFUL_WORKING_DIR = 'stateful_working_dir'
 _EXECUTION_OUTPUT_FILE = 'executor_output.pb'
+_VALUE_FILE_NAME = 'value_file'
+_VALUEARTIFACE_SUBCLASS_NAMES = ['Bytes', 'String', 'Integer', 'Float']
 
 
 def make_output_dirs(output_dict: Dict[Text, List[types.Artifact]]) -> None:
@@ -63,13 +65,14 @@ class OutputsResolver:
   def generate_output_artifacts(
       self, execution_id: int) -> Dict[Text, List[types.Artifact]]:
     """Generates output artifacts given execution_id."""
-    # TODO(b/166312308): support ValueArtifact behavior.
     output_artifacts = collections.defaultdict(list)
     for key, output_spec in self._pipeline_node.outputs.outputs.items():
       artifact = types.Artifact(
           mlmd_artifact_type=output_spec.artifact_spec.type)
       artifact.uri = os.path.join(self._node_dir,
                                   _EXECUTION_PREFIX + str(execution_id), key)
+      if artifact.type_name in _VALUEARTIFACE_SUBCLASS_NAMES:
+        artifact.uri = os.path.join(artifact.uri, _VALUE_FILE_NAME)
       # artifact.name will contain the set of information to track its creation
       # and is guaranteed to be idempotent across retires of a node.
       artifact.name = '{0}:{1}:{2}:{3}:{4}'.format(
