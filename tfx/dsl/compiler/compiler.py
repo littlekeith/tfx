@@ -195,6 +195,12 @@ class Compiler(object):
     # Step 8: Node execution options
     # TODO(kennethyang): Add support for node execution options.
 
+    # Step 9: Per-node platform config
+    if (compiler_utils.is_component(tfx_node) and
+        getattr(tfx_node, "platform_config", None)):
+      deployment_config.node_level_platform_configs[tfx_node.id].Pack(
+          getattr(tfx_node, "platform_config"))
+
     return node
 
   def compile(self, tfx_pipeline: pipeline.Pipeline) -> pipeline_pb2.Pipeline:
@@ -234,5 +240,8 @@ class Compiler(object):
       pipeline_pb.nodes.append(pipeline_or_node)
       context.node_pbs[node.id] = node_pb
 
+    if tfx_pipeline.platform_config:
+      deployment_config.pipeline_level_platform_config.Pack(
+          tfx_pipeline.platform_config)
     pipeline_pb.deployment_config.Pack(deployment_config)
     return pipeline_pb

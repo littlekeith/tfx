@@ -31,6 +31,8 @@ from tfx.dsl.components.base import executor_spec
 from tfx.types import node_common
 from tfx.utils import abc_utils
 
+from google.protobuf import message
+
 # Constants that used for serializing and de-serializing components.
 _DRIVER_CLASS_KEY = 'driver_class'
 _EXECUTOR_SPEC_KEY = 'executor_spec'
@@ -99,6 +101,7 @@ class BaseComponent(with_metaclass(abc.ABCMeta, base_node.BaseNode)):
              'ExecutorSpec') % (custom_executor_spec, self.__class__))
     self._validate_component_class()
     self._validate_spec(spec)
+    self.platform_config = None
 
   @classmethod
   def _validate_component_class(cls):
@@ -131,6 +134,22 @@ class BaseComponent(with_metaclass(abc.ABCMeta, base_node.BaseNode)):
           ('%s expects the "spec" argument to be an instance of %s; '
            'got %s instead.') %
           (self.__class__, self.__class__.SPEC_CLASS, spec))
+
+  # TODO(b/170682320): This function is not widely available until we migrate
+  # the entire stack to IR-based.
+  def with_platform_config(self, config: message.Message) -> 'BaseComponent':
+    """Attaches a proto-form platform config to a component.
+
+    The config will be a per-node platform-specific config.
+
+    Args:
+      config: platform config to attach to the component.
+
+    Returns:
+      the same component itself.
+    """
+    self.platform_config = config
+    return self
 
   def __repr__(self):
     return ('%s(spec: %s, executor_spec: %s, driver_class: %s, '
